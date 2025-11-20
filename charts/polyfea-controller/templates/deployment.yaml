@@ -35,6 +35,13 @@ spec:
         {{- range .Values.manager.args }}
         - {{ . }}
         {{- end }}
+        env:
+        - name: POLYFEA_WEB_SERVER_PORT
+          value: {{ .Values.manager.webServerPort | quote }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.manager.webServerPort }}
+          protocol: TCP
         securityContext:
           {{- toYaml .Values.securityContext | nindent 10 }}
         livenessProbe:
