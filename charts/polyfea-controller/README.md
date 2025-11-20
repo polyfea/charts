@@ -35,11 +35,17 @@ helm install polyfea-controller ./charts/polyfea-controller \
 
 ### Core Components
 * **Deployment** - Polyfea controller manager with configurable replicas
+* **Service** - ClusterIP service exposing the controller's web server
 * **Service Account** - Dedicated service account with optional custom name
 * **ClusterRole** - Manager role with permissions for Polyfea CRDs and core resources
 * **ClusterRoleBinding** - Binds manager role to service account
 * **Role** - Leader election role for controller HA
 * **RoleBinding** - Binds leader election role to service account
+
+### Optional External Access
+* **Ingress** - Standard Kubernetes Ingress (works with Nginx, Traefik, etc.)
+* **HTTPRoute** - Gateway API HTTPRoute (modern successor to Ingress)
+* **LoadBalancer/NodePort** - Direct service exposure via cloud LB or node ports
 
 ### Custom Resource Definitions (CRDs)
 * `microfrontends.polyfea.github.io`
@@ -71,6 +77,24 @@ kubectl delete crd microfrontends.polyfea.github.io
 kubectl delete crd microfrontendclasses.polyfea.github.io
 kubectl delete crd webcomponents.polyfea.github.io
 ```
+
+## Accessing the Controller
+
+The controller's web server can be accessed in several ways:
+
+| Method | Use Case | Prerequisites |
+|--------|----------|---------------|
+| **ClusterIP** (default) | Internal cluster access only | None |
+| **Ingress** | Production HTTP/HTTPS via domain name | Ingress controller (Nginx, Traefik, etc.) |
+| **Gateway API** | Modern routing with advanced features | Gateway API CRDs + Gateway resource |
+| **LoadBalancer** | Cloud environments with LB support | Cloud provider integration |
+| **NodePort** | Development/testing on bare metal | Direct node access |
+
+**Recommendations:**
+- **Production**: Use **Ingress** (most common) or **Gateway API** (modern) with TLS
+- **Development**: Use **port-forward** or **NodePort**
+- **Cloud**: Use **LoadBalancer** for simple setups
+- **Internal only**: Keep default **ClusterIP**
 
 ## Configuration
 
@@ -120,6 +144,35 @@ The controller's web server can be exposed via a Kubernetes Service:
 | `service.loadBalancerIP` | Specific IP for LoadBalancer type | `nil` |
 | `service.loadBalancerSourceRanges` | CIDR ranges allowed to access LoadBalancer | `nil` |
 | `service.externalTrafficPolicy` | Traffic routing policy (Cluster or Local) | `nil` |
+
+### Ingress Configuration
+
+Expose the controller via Ingress (works with Nginx, Traefik, and other ingress controllers):
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `ingress.enabled` | Enable Ingress resource | `false` |
+| `ingress.className` | Ingress class name (nginx, traefik, etc.) | `nil` |
+| `ingress.annotations` | Ingress annotations (cert-manager, etc.) | `{}` |
+| `ingress.hosts` | Array of host configurations | See values.yaml |
+| `ingress.hosts[].host` | Hostname for the ingress rule | `polyfea-controller.example.com` |
+| `ingress.hosts[].paths` | Array of path configurations | `[{path: /, pathType: Prefix}]` |
+| `ingress.tls` | TLS configuration for HTTPS | `[]` |
+
+### Gateway API Configuration
+
+Expose the controller via Gateway API HTTPRoute (requires Gateway API CRDs):
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `gateway.enabled` | Enable Gateway API HTTPRoute resource | `false` |
+| `gateway.annotations` | HTTPRoute annotations | `{}` |
+| `gateway.parentRefs` | Array of Gateway references to attach to | `[{name: gateway}]` |
+| `gateway.parentRefs[].name` | Name of the Gateway resource | `gateway` |
+| `gateway.parentRefs[].namespace` | Namespace of the Gateway (if different) | `nil` |
+| `gateway.parentRefs[].sectionName` | Specific listener section name | `nil` |
+| `gateway.hostnames` | Array of hostnames for routing | `[polyfea-controller.example.com]` |
+| `gateway.rules` | Array of routing rules with matches and filters | See values.yaml |
 
 ### Health Probes
 
@@ -238,6 +291,94 @@ helm install polyfea-controller polyfea/polyfea-controller \
   --create-namespace \
   --set service.type=LoadBalancer \
   --set service.loadBalancerSourceRanges[0]=10.0.0.0/8
+```
+
+### Expose Controller via Ingress (Nginx)
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set ingress.hosts[0].host=polyfea.example.com \
+  --set ingress.hosts[0].paths[0].path=/ \
+  --set ingress.hosts[0].paths[0].pathType=Prefix
+```
+
+### Expose Controller via Ingress with TLS (cert-manager)
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt-prod \
+  --set ingress.hosts[0].host=polyfea.example.com \
+  --set ingress.hosts[0].paths[0].path=/ \
+  --set ingress.tls[0].secretName=polyfea-controller-tls \
+  --set ingress.tls[0].hosts[0]=polyfea.example.com
+```
+
+### Expose Controller via Traefik Ingress
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set ingress.enabled=true \
+  --set ingress.className=traefik \
+  --set ingress.hosts[0].host=polyfea.example.com \
+  --set ingress.hosts[0].paths[0].path=/
+```
+
+### Expose Controller via Gateway API
+
+```bash
+# Requires Gateway API CRDs and a Gateway resource installed
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set gateway.enabled=true \
+  --set gateway.parentRefs[0].name=my-gateway \
+  --set gateway.parentRefs[0].namespace=default \
+  --set gateway.hostnames[0]=polyfea.example.com
+```
+
+### Gateway API with Custom Values File
+
+For more complex Gateway API configurations, use a values file:
+
+```yaml
+gateway:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: default
+      sectionName: https
+  hostnames:
+    - polyfea.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            add:
+              - name: X-Forwarded-Proto
+                value: https
+```
+
+Then install:
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --values custom-gateway-values.yaml
 ```
 
 ## Upgrade
