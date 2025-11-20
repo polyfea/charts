@@ -23,6 +23,15 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+service:
+  type: ClusterIP
+  port: 8082
+  # nodePort: 30082  # Uncomment and set when type is NodePort
+  # clusterIP: ""  # Set to "None" for headless service
+  # loadBalancerIP: ""  # Set when type is LoadBalancer
+  # loadBalancerSourceRanges: []  # Restrict LoadBalancer access to specific IPs
+  # externalTrafficPolicy: Cluster  # Set to "Local" to preserve source IP
+
 podAnnotations:
   kubectl.kubernetes.io/default-container: polyfea-controller
 
