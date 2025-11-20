@@ -1,0 +1,40 @@
+{{- if .Values.enabled }}
+apiVersion: polyfea.github.io/v1alpha1
+kind: MicroFrontend
+metadata:
+  name: material-design
+  labels:
+    {{- include "polyfea-md-shell-samples.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+spec:
+  frontendClass: fea
+  service: http://polyfea-md-shell.{{ .Release.Namespace }}.svc.cluster.local
+  modulePath: md/material-all.mjs
+  staticPaths:
+    - kind: stylesheet
+      path: md/fonts/material-symbols/style.css
+    - kind: stylesheet
+      path: md/fonts/roboto/style.css
+    - kind: stylesheet
+      path: md/theme/tokens.css
+    - kind: stylesheet
+      path: md/theme/theme.css
+---
+apiVersion: polyfea.github.io/v1alpha1
+kind: MicroFrontend
+metadata:
+  name: polyfea-md-shell
+  labels:
+    {{- include "polyfea-md-shell-samples.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+spec:
+  frontendClass: fea
+  service: http://polyfea-md-shell.{{ .Release.Namespace }}.svc.cluster.local
+  modulePath: md-shell.esm.js
+  dependsOn:
+    - material-design
+{{- end }}
