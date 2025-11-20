@@ -26,7 +26,18 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+      - name: Run chart-releaser for controller
+        uses: helm/chart-releaser-action@v1.7.0
+        with:
+          skip_existing: true
+          charts_dir: charts/polyfea-controller
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Run chart-releaser for md-shell-samples
+        uses: helm/chart-releaser-action@v1.7.0
+        with:
+          skip_existing: true
+          charts_dir: charts/polyfea-md-shell-samples
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
