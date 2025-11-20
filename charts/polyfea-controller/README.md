@@ -45,6 +45,8 @@ helm install polyfea-controller ./charts/polyfea-controller \
 ### Optional External Access
 * **Ingress** - Standard Kubernetes Ingress (works with Nginx, Traefik, etc.)
 * **HTTPRoute** - Gateway API HTTPRoute (modern successor to Ingress)
+* **Traefik IngressRoute** - Native Traefik CRD for advanced Traefik features
+* **Custom Ingress** - Support for any custom CRD (Istio, Contour, etc.)
 * **LoadBalancer/NodePort** - Direct service exposure via cloud LB or node ports
 
 ### Custom Resource Definitions (CRDs)
@@ -87,6 +89,8 @@ The controller's web server can be accessed in several ways:
 | **ClusterIP** (default) | Internal cluster access only | None |
 | **Ingress** | Production HTTP/HTTPS via domain name | Ingress controller (Nginx, Traefik, etc.) |
 | **Gateway API** | Modern routing with advanced features | Gateway API CRDs + Gateway resource |
+| **Traefik IngressRoute** | Native Traefik features (middlewares, etc.) | Traefik with CRDs |
+| **Custom Ingress** | Any custom CRD (Istio, Contour, etc.) | Respective controller + CRDs |
 | **LoadBalancer** | Cloud environments with LB support | Cloud provider integration |
 | **NodePort** | Development/testing on bare metal | Direct node access |
 
@@ -173,6 +177,32 @@ Expose the controller via Gateway API HTTPRoute (requires Gateway API CRDs):
 | `gateway.parentRefs[].sectionName` | Specific listener section name | `nil` |
 | `gateway.hostnames` | Array of hostnames for routing | `[polyfea-controller.example.com]` |
 | `gateway.rules` | Array of routing rules with matches and filters | See values.yaml |
+
+### Traefik IngressRoute Configuration
+
+Expose the controller via Traefik's native CRD (requires Traefik with CRDs):
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `traefik.enabled` | Enable Traefik IngressRoute resource | `false` |
+| `traefik.annotations` | IngressRoute annotations | `{}` |
+| `traefik.entryPoints` | Array of Traefik entrypoints (web, websecure, etc.) | `[websecure]` |
+| `traefik.routes` | Array of routing rules | See values.yaml |
+| `traefik.routes[].match` | Traefik routing rule (e.g., Host(`example.com`)) | Required |
+| `traefik.routes[].priority` | Route priority (higher = higher priority) | `nil` |
+| `traefik.routes[].middlewares` | Array of middleware references | `nil` |
+| `traefik.tls` | TLS configuration with secretName and certResolver | `nil` |
+
+### Custom Ingress Configuration
+
+For any other ingress solution with custom CRDs (Istio, Contour, etc.):
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `customIngress.enabled` | Enable custom manifest rendering | `false` |
+| `customIngress.manifests` | Array of raw Kubernetes manifests | `[]` |
+
+The manifests are templated with full access to chart values and helper functions. See values.yaml for examples.
 
 ### Health Probes
 
@@ -321,7 +351,7 @@ helm install polyfea-controller polyfea/polyfea-controller \
   --set ingress.tls[0].hosts[0]=polyfea.example.com
 ```
 
-### Expose Controller via Traefik Ingress
+### Expose Controller via Traefik (Standard Ingress)
 
 ```bash
 helm install polyfea-controller polyfea/polyfea-controller \
@@ -331,6 +361,37 @@ helm install polyfea-controller polyfea/polyfea-controller \
   --set ingress.className=traefik \
   --set ingress.hosts[0].host=polyfea.example.com \
   --set ingress.hosts[0].paths[0].path=/
+```
+
+### Expose Controller via Traefik IngressRoute (Native CRD)
+
+For advanced Traefik features like middlewares:
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set traefik.enabled=true \
+  --set traefik.entryPoints[0]=websecure \
+  --set traefik.routes[0].match="Host(\`polyfea.example.com\`)"
+```
+
+Or with a values file for more complex configuration:
+
+```yaml
+traefik:
+  enabled: true
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`polyfea.example.com`) && PathPrefix(`/`)
+      middlewares:
+        - name: rate-limit
+        - name: auth
+          namespace: default
+  tls:
+    secretName: polyfea-controller-tls
+    # certResolver: letsencrypt  # For automatic cert generation
 ```
 
 ### Expose Controller via Gateway API
@@ -379,6 +440,59 @@ helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
   --values custom-gateway-values.yaml
+```
+
+### Expose Controller via Custom CRD (Istio Example)
+
+For Istio VirtualService or any other custom CRD:
+
+```yaml
+customIngress:
+  enabled: true
+  manifests:
+    - apiVersion: networking.istio.io/v1beta1
+      kind: VirtualService
+      metadata:
+        name: "{{ include \"polyfea-controller.fullname\" . }}"
+        labels:
+          {{- include "polyfea-controller.labels" . | nindent 10 }}
+      spec:
+        hosts:
+          - polyfea.example.com
+        gateways:
+          - istio-gateway
+        http:
+          - route:
+              - destination:
+                  host: "{{ include \"polyfea-controller.fullname\" . }}"
+                  port:
+                    number: {{ .Values.service.port }}
+```
+
+### Expose Controller via Custom CRD (Contour Example)
+
+For Contour HTTPProxy:
+
+```yaml
+customIngress:
+  enabled: true
+  manifests:
+    - apiVersion: projectcontour.io/v1
+      kind: HTTPProxy
+      metadata:
+        name: "{{ include \"polyfea-controller.fullname\" . }}"
+        namespace: "{{ .Release.Namespace }}"
+      spec:
+        virtualhost:
+          fqdn: polyfea.example.com
+          tls:
+            secretName: polyfea-controller-tls
+        routes:
+          - conditions:
+              - prefix: /
+            services:
+              - name: "{{ include \"polyfea-controller.fullname\" . }}"
+                port: {{ .Values.service.port }}
 ```
 
 ## Upgrade

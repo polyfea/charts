@@ -1,0 +1,6 @@
+{{- if .Values.customIngress.enabled -}}
+{{- range .Values.customIngress.manifests }}
+---
+{{ tpl (toYaml .) $ }}
+{{- end }}
+{{- end }}
