@@ -50,5 +50,6 @@ jobs:
         with:
           skip_existing: true
           skip_packaging: true
+          mark_as_latest: false
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
