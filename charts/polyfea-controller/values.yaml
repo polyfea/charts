@@ -25,7 +25,7 @@ serviceAccount:
 
 service:
   type: ClusterIP
-  port: 8082
+  port: 80
   # nodePort: 30082  # Uncomment and set when type is NodePort
   # clusterIP: ""  # Set to "None" for headless service
   # loadBalancerIP: ""  # Set when type is LoadBalancer
