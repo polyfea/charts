@@ -107,6 +107,20 @@ helm show values polyfea/polyfea-controller
 | `rbacRoles.createEditorRoles` | Create editor roles for user management | `false` |
 | `rbacRoles.createViewerRoles` | Create viewer roles for user management | `false` |
 
+### Service Configuration
+
+The controller's web server can be exposed via a Kubernetes Service:
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `service.type` | Service type (ClusterIP, NodePort, LoadBalancer) | `ClusterIP` |
+| `service.port` | Service port | `8082` |
+| `service.nodePort` | Static node port (30000-32767, for NodePort type) | `nil` |
+| `service.clusterIP` | Specific cluster IP or "None" for headless service | `nil` |
+| `service.loadBalancerIP` | Specific IP for LoadBalancer type | `nil` |
+| `service.loadBalancerSourceRanges` | CIDR ranges allowed to access LoadBalancer | `nil` |
+| `service.externalTrafficPolicy` | Traffic routing policy (Cluster or Local) | `nil` |
+
 ### Health Probes
 
 The controller exposes health endpoints on port 8081:
@@ -127,7 +141,7 @@ The controller exposes health endpoints on port 8081:
 ### Install with Specific Image Tag
 
 ```bash
-helm install polyfea-controller ./charts/polyfea-controller \
+helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
   --set image.tag=v1.0.0
@@ -136,7 +150,7 @@ helm install polyfea-controller ./charts/polyfea-controller \
 ### Install with Custom Resources
 
 ```bash
-helm install polyfea-controller ./charts/polyfea-controller \
+helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
   --set resources.limits.cpu=1000m \
@@ -147,7 +161,7 @@ helm install polyfea-controller ./charts/polyfea-controller \
 ### Install with User Management Roles
 
 ```bash
-helm install polyfea-controller ./charts/polyfea-controller \
+helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
   --set rbacRoles.createEditorRoles=true \
@@ -183,7 +197,7 @@ nodeSelector:
 Install:
 
 ```bash
-helm install polyfea-controller ./charts/polyfea-controller \
+helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
   --values custom-values.yaml
@@ -200,16 +214,36 @@ kubectl create secret docker-registry ghcr-secret \
   --namespace polyfea-system
 
 # Install with secret
-helm install polyfea-controller ./charts/polyfea-controller \
+helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
   --set imagePullSecrets[0].name=ghcr-secret
 ```
 
+### Expose Controller as NodePort
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set service.type=NodePort \
+  --set service.nodePort=30082
+```
+
+### Expose Controller as LoadBalancer
+
+```bash
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set service.type=LoadBalancer \
+  --set service.loadBalancerSourceRanges[0]=10.0.0.0/8
+```
+
 ## Upgrade
 
 ```bash
-helm upgrade polyfea-controller ./charts/polyfea-controller \
+helm upgrade polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system
 ```
 
@@ -248,6 +282,21 @@ kubectl get crds | grep polyfea.github.io
 kubectl port-forward -n polyfea-system deployment/polyfea-controller 8081:8081
 curl http://localhost:8081/healthz
 curl http://localhost:8081/readyz
+```
+
+### Access Controller Web Server
+
+If the service is installed, you can access the controller's web server:
+
+```bash
+# Port-forward the service
+kubectl port-forward -n polyfea-system service/polyfea-controller 8082:8082
+
+# For NodePort service, get the node port
+kubectl get svc -n polyfea-system polyfea-controller
+
+# For LoadBalancer service, get the external IP
+kubectl get svc -n polyfea-system polyfea-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 ## Security

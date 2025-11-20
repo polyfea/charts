@@ -31,10 +31,6 @@ helm install polyfea-controller polyfea/polyfea-controller \
 The samples chart includes a dependency on the controller, so it can be installed standalone:
 
 ```bash
-# Update dependencies first
-cd charts/polyfea-md-shell-samples
-helm dependency update
-
 # Install both controller and samples
 helm install polyfea polyfea/polyfea-md-shell-samples \
   --namespace polyfea \

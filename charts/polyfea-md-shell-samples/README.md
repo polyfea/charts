@@ -10,14 +10,22 @@ Sample applications and configurations for Polyfea, demonstrating the Material D
 
 ## Installation
 
+### From Helm Repository
+
+Add the Polyfea Helm repository:
+
+```bash
+helm repo add polyfea https://polyfea.github.io/charts
+helm repo update
+```
+
 ### Install with controller dependency
 
 ```bash
-# Update dependencies
-helm dependency update charts/polyfea-md-shell-samples
-
 # Install both controller and samples
-helm install polyfea charts/polyfea-md-shell-samples --namespace polyfea --create-namespace
+helm install polyfea polyfea/polyfea-md-shell-samples \
+  --namespace polyfea \
+  --create-namespace
 ```
 
 ### Install samples only (controller already installed)
@@ -25,7 +33,7 @@ helm install polyfea charts/polyfea-md-shell-samples --namespace polyfea --creat
 If the controller is already installed in a different namespace, disable the dependency:
 
 ```bash
-helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples \
+helm install polyfea-md-shell-samples polyfea/polyfea-md-shell-samples \
   --namespace polyfea \
   --create-namespace \
   --set polyfea-controller.enabled=false
@@ -35,12 +43,12 @@ helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples \
 
 ```bash
 # Install controller in polyfea-system namespace
-helm install polyfea-controller charts/polyfea-controller \
+helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace
 
 # Install samples in polyfea namespace (skip controller dependency)
-helm install polyfea-samples charts/polyfea-md-shell-samples \
+helm install polyfea-samples polyfea/polyfea-md-shell-samples \
   --namespace polyfea \
   --create-namespace \
   --set polyfea-controller.enabled=false
@@ -64,14 +72,18 @@ helm install polyfea-samples charts/polyfea-md-shell-samples \
 ### Example: Customize Application Name
 
 ```bash
-helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples \
+helm install polyfea-md-shell-samples polyfea/polyfea-md-shell-samples \
+  --namespace polyfea \
+  --create-namespace \
   --set mdShell.applicationHeadline="My Custom App"
 ```
 
 ### Example: Disable Earth Sample
 
 ```bash
-helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples \
+helm install polyfea-md-shell-samples polyfea/polyfea-md-shell-samples \
+  --namespace polyfea \
+  --create-namespace \
   --set samples.earthSample=false
 ```
 
