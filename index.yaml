@@ -3,6 +3,16 @@ entries:
   polyfea-controller:
   - apiVersion: v2
     appVersion: v0.2.0
+    created: "2025-11-20T20:30:51.62289614Z"
+    description: A Helm chart for Polyfea Controller
+    digest: 37e8778df35ce6f7632d9a9a7297819ceb44ffef613a55ed3c25b9de8bc67b36
+    name: polyfea-controller
+    type: application
+    urls:
+    - https://github.com/polyfea/charts/releases/download/polyfea-controller-0.2.0/polyfea-controller-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: v0.2.0
     created: "2025-11-20T14:51:56.038453627Z"
     description: A Helm chart for Polyfea Controller
     digest: dbfa33d19e5e979065482a00530676bf1ef6017828f603e06d47b4b5864e00a3
@@ -27,4 +37,4 @@ entries:
     urls:
     - https://github.com/polyfea/charts/releases/download/polyfea-md-shell-samples-0.1.0/polyfea-md-shell-samples-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-20T14:51:56.164832272Z"
+generated: "2025-11-20T20:30:51.804417256Z"
