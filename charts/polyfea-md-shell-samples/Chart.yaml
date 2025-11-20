@@ -9,3 +9,4 @@ dependencies:
   - name: polyfea-controller
     version: ">=0.1.0"
     repository: "file://../polyfea-controller"
+    condition: polyfea-controller.enabled

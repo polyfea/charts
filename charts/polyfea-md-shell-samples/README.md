@@ -6,7 +6,7 @@ Sample applications and configurations for Polyfea, demonstrating the Material D
 
 - Kubernetes cluster
 - Helm 3+
-- `polyfea-controller` must be installed (automatically handled via chart dependency)
+- `polyfea-controller` (automatically installed via chart dependency by default, or can be installed separately)
 
 ## Installation
 
@@ -22,8 +22,28 @@ helm install polyfea charts/polyfea-md-shell-samples --namespace polyfea --creat
 
 ### Install samples only (controller already installed)
 
+If the controller is already installed in a different namespace, disable the dependency:
+
 ```bash
-helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples --namespace polyfea
+helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples \
+  --namespace polyfea \
+  --create-namespace \
+  --set polyfea-controller.enabled=false
+```
+
+### Install in separate namespaces
+
+```bash
+# Install controller in polyfea-system namespace
+helm install polyfea-controller charts/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace
+
+# Install samples in polyfea namespace (skip controller dependency)
+helm install polyfea-samples charts/polyfea-md-shell-samples \
+  --namespace polyfea \
+  --create-namespace \
+  --set polyfea-controller.enabled=false
 ```
 
 ## Configuration
@@ -32,6 +52,7 @@ helm install polyfea-md-shell-samples charts/polyfea-md-shell-samples --namespac
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `polyfea-controller.enabled` | Install polyfea-controller dependency | `true` |
 | `enabled` | Enable/disable sample deployment | `true` |
 | `samples.earthSample` | Enable/disable Earth sample app | `true` |
 | `mdShell.replicaCount` | Number of replicas | `1` |

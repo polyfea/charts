@@ -3,6 +3,11 @@
 # Enable or disable the deployment of sample resources
 enabled: true
 
+# Polyfea controller dependency configuration
+polyfea-controller:
+  # Set to false if polyfea-controller is already installed in another namespace
+  enabled: true
+
 # Enable or disable specific samples
 samples:
   # Enable the Blue Marble Earth sample application
