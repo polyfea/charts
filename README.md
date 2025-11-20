@@ -12,7 +12,7 @@ This repository contains the official Helm charts for Polyfea components.
 ## Adding the Repository
 
 ```bash
-helm repo add polyfea https://polyfea.github.io/helm
+helm repo add polyfea https://polyfea.github.io/charts
 helm repo update
 ```
 
