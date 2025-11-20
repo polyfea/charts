@@ -40,16 +40,11 @@ jobs:
       - name: Package samples chart
         run: |
           helm package charts/polyfea-md-shell-samples -d .cr-release-packages
-          
-      - name: Package samples chart
-        run: |
-          helm package charts/polyfea-md-shell-samples -d .cr-release-packages
 
       - name: Upload and index charts
-        uses: helm/chart-releaser-action@v1.7.0
+        uses: helm/chart-releaser-action@main
         with:
           skip_existing: true
           skip_packaging: true
-          mark_as_latest: false
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
