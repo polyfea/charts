@@ -7,6 +7,7 @@ This repository contains the official Helm charts for Polyfea components.
 | Chart | Description |
 |-------|-------------|
 | **polyfea-controller** | Deploys the Polyfea microfrontend controller and its CRDs. |
+| **polyfea-md-shell-samples** | Sample applications demonstrating the Polyfea Material Design Shell with web components. Includes dependency on polyfea-controller. |
 
 ## Adding the Repository
 
@@ -17,11 +18,36 @@ helm repo update
 
 ## Installing a Chart
 
-Example: install the Polyfea Controller:
+### Install the Polyfea Controller
 
 ```bash
 helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
+  --create-namespace
+```
+
+### Install Sample Applications
+
+The samples chart includes a dependency on the controller, so it can be installed standalone:
+
+```bash
+# Update dependencies first
+cd charts/polyfea-md-shell-samples
+helm dependency update
+
+# Install both controller and samples
+helm install polyfea polyfea/polyfea-md-shell-samples \
+  --namespace polyfea \
+  --create-namespace
+```
+
+You can customize the samples installation:
+
+```bash
+# Disable the Earth sample application
+helm install polyfea polyfea/polyfea-md-shell-samples \
+  --set samples.earthSample=false \
+  --namespace polyfea \
   --create-namespace
 ```
 

@@ -1,0 +1,18 @@
+{{- if .Values.enabled }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: polyfea-md-shell
+  labels:
+    {{- include "polyfea-md-shell-samples.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.mdShell.service.type }}
+  selector:
+    pod: polyfea-md-shell
+    {{- include "polyfea-md-shell-samples.selectorLabels" . | nindent 4 }}
+  ports:
+  - name: http
+    protocol: TCP
+    port: {{ .Values.mdShell.service.port }}
+    targetPort: http
+{{- end }}
