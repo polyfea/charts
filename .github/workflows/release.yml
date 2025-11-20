@@ -26,18 +26,29 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Run chart-releaser for controller
-        uses: helm/chart-releaser-action@v1.7.0
-        with:
-          skip_existing: true
-          charts_dir: charts/polyfea-controller
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Package controller chart
+        run: |
+          mkdir -p .cr-release-packages
+          helm package charts/polyfea-controller -d .cr-release-packages
+          
+      - name: Update dependencies for samples chart
+        run: |
+          # Use the locally packaged controller chart as a file-based dependency
+          mkdir -p charts/polyfea-md-shell-samples/charts
+          cp .cr-release-packages/polyfea-controller-*.tgz charts/polyfea-md-shell-samples/charts/
+          
+      - name: Package samples chart
+        run: |
+          helm package charts/polyfea-md-shell-samples -d .cr-release-packages
+          
+      - name: Package samples chart
+        run: |
+          helm package charts/polyfea-md-shell-samples -d .cr-release-packages
 
-      - name: Run chart-releaser for md-shell-samples
+      - name: Upload and index charts
         uses: helm/chart-releaser-action@v1.7.0
         with:
           skip_existing: true
-          charts_dir: charts/polyfea-md-shell-samples
+          skip_packaging: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
