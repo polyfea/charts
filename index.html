@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyfea Helm Charts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 3rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            color: #667eea;
+            margin: 1.5rem 0 0.75rem 0;
+            font-size: 1.3rem;
+        }
+        
+        .charts {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .chart-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .chart-card h3 {
+            margin-top: 0;
+            color: #764ba2;
+        }
+        
+        .chart-card p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .command-section {
+            margin: 2rem 0;
+        }
+        
+        .command {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .command code {
+            color: #e2e8f0;
+        }
+        
+        .command .comment {
+            color: #a0aec0;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+            color: #666;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+        
+        .emoji {
+            font-size: 1.3rem;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .step {
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Polyfea Helm Charts</h1>
+            <p class="subtitle">Official Helm Repository for Polyfea Microfrontend Components</p>
+        </header>
+        
+        <section>
+            <h2>Available Charts</h2>
+            <div class="charts">
+                <div class="chart-card">
+                    <h3>polyfea-controller</h3>
+                    <p>Deploys the Polyfea microfrontend controller and its Custom Resource Definitions (CRDs). The core component for managing microfrontends in your Kubernetes cluster.</p>
+                </div>
+                <div class="chart-card">
+                    <h3>polyfea-md-shell-samples</h3>
+                    <p>Sample applications demonstrating the Polyfea Material Design Shell with web components. Perfect for getting started and learning how Polyfea works.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="command-section">
+            <h2>Getting Started</h2>
+            
+            <h3>1. Add the Helm Repository</h3>
+            <div class="command">
+<code>helm repo add polyfea https://polyfea.github.io/charts
+helm repo update</code>
+            </div>
+            
+            <h3>2. Search for Available Charts</h3>
+            <div class="command">
+<code><span class="comment"># List all Polyfea charts</span>
+helm search repo polyfea
+
+<span class="comment"># Show all available versions</span>
+helm search repo polyfea --versions</code>
+            </div>
+            
+            <h3>3. View Chart Information</h3>
+            <div class="command">
+<code><span class="comment"># Show the chart README</span>
+helm show readme polyfea/polyfea-controller
+
+<span class="comment"># View default values</span>
+helm show values polyfea/polyfea-controller</code>
+            </div>
+            
+            <h3>4. Install a Chart</h3>
+            <div class="command">
+<code><span class="comment"># Install the Polyfea controller</span>
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace
+
+<span class="comment"># Or install with custom values</span>
+helm install polyfea-controller polyfea/polyfea-controller \
+  --namespace polyfea-system \
+  --create-namespace \
+  --set replicaCount=2</code>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Documentation</h2>
+            <p>For detailed documentation, visit the <a href="https://github.com/polyfea/charts" target="_blank">GitHub repository</a>. Each chart contains its own comprehensive README with configuration options and examples.</p>
+        </section>
+        
+        <footer>Happy Helming!</footer>
+    </div>
+</body>
+</html>
