@@ -32,6 +32,119 @@ service:
   # loadBalancerSourceRanges: []  # Restrict LoadBalancer access to specific IPs
   # externalTrafficPolicy: Cluster  # Set to "Local" to preserve source IP
 
+ingress:
+  enabled: false
+  # className: nginx  # For Nginx Ingress
+  # className: traefik  # For Traefik
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  hosts:
+    - host: polyfea-controller.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: polyfea-controller-tls
+  #    hosts:
+  #      - polyfea-controller.example.com
+
+# Gateway API configuration (requires Gateway API CRDs installed)
+# https://gateway-api.sigs.k8s.io/
+gateway:
+  enabled: false
+  annotations: {}
+  # Reference to the Gateway(s) that this HTTPRoute should be attached to
+  parentRefs:
+    - name: gateway
+      # namespace: default  # Uncomment if Gateway is in a different namespace
+      # sectionName: https  # Use specific listener section
+  # Hostnames that should match this HTTPRoute
+  hostnames:
+    - polyfea-controller.example.com
+  # HTTP routing rules
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      # Optional filters for request/response modification
+      # filters:
+      #   - type: RequestHeaderModifier
+      #     requestHeaderModifier:
+      #       add:
+      #         - name: X-Custom-Header
+      #           value: custom-value
+
+# Traefik IngressRoute configuration (requires Traefik CRDs installed)
+# https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/
+traefik:
+  enabled: false
+  annotations: {}
+  # Traefik entrypoints to use (e.g., web, websecure)
+  entryPoints:
+    - websecure
+  # Routing rules
+  routes:
+    - match: Host(`polyfea-controller.example.com`)
+      # priority: 10  # Optional: higher number = higher priority
+      # middlewares:  # Optional: reference to Traefik middlewares
+      #   - name: rate-limit
+      #   - name: auth
+      #     namespace: default
+      # weight: 1  # Optional: for traffic splitting
+      # sticky:  # Optional: session affinity
+      #   cookie:
+      #     name: sticky-cookie
+  # TLS configuration
+  # tls:
+  #   secretName: polyfea-controller-tls
+  #   # options:  # Optional: reference to TLSOption resource
+  #   #   name: default
+  #   # certResolver: letsencrypt  # For automatic cert generation
+
+# Custom ingress configuration for unsupported CRDs
+# Use this to define any custom resource for ingress/routing
+# The manifests will be templated with the chart context
+customIngress:
+  enabled: false
+  # List of raw Kubernetes manifests for custom CRDs
+  # You have access to all chart values and helper functions via templating
+  manifests: []
+  # Example for Istio VirtualService:
+  # - apiVersion: networking.istio.io/v1beta1
+  #   kind: VirtualService
+  #   metadata:
+  #     name: {{ include "polyfea-controller.fullname" . }}
+  #     labels:
+  #       {{- include "polyfea-controller.labels" . | nindent 6 }}
+  #   spec:
+  #     hosts:
+  #       - polyfea-controller.example.com
+  #     gateways:
+  #       - istio-gateway
+  #     http:
+  #       - route:
+  #           - destination:
+  #               host: {{ include "polyfea-controller.fullname" . }}
+  #               port:
+  #                 number: {{ .Values.service.port }}
+  #
+  # Example for Contour HTTPProxy:
+  # - apiVersion: projectcontour.io/v1
+  #   kind: HTTPProxy
+  #   metadata:
+  #     name: {{ include "polyfea-controller.fullname" . }}
+  #   spec:
+  #     virtualhost:
+  #       fqdn: polyfea-controller.example.com
+  #     routes:
+  #       - services:
+  #           - name: {{ include "polyfea-controller.fullname" . }}
+  #             port: {{ .Values.service.port }}
+
 podAnnotations:
   kubectl.kubernetes.io/default-container: polyfea-controller
 

@@ -1,0 +1,48 @@
+{{- if .Values.traefik.enabled -}}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "polyfea-controller.fullname" . }}
+  labels:
+    {{- include "polyfea-controller.labels" . | nindent 4 }}
+  {{- with .Values.traefik.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    {{- range .Values.traefik.entryPoints }}
+    - {{ . }}
+    {{- end }}
+  routes:
+    {{- range .Values.traefik.routes }}
+    - match: {{ .match }}
+      kind: Rule
+      {{- if .priority }}
+      priority: {{ .priority }}
+      {{- end }}
+      {{- if .middlewares }}
+      middlewares:
+        {{- range .middlewares }}
+        - name: {{ .name }}
+          {{- if .namespace }}
+          namespace: {{ .namespace }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      services:
+        - name: {{ include "polyfea-controller.fullname" $ }}
+          port: {{ $.Values.service.port }}
+          {{- if .weight }}
+          weight: {{ .weight }}
+          {{- end }}
+          {{- if .sticky }}
+          sticky:
+            {{- toYaml .sticky | nindent 12 }}
+          {{- end }}
+    {{- end }}
+  {{- if .Values.traefik.tls }}
+  tls:
+    {{- toYaml .Values.traefik.tls | nindent 4 }}
+  {{- end }}
+{{- end }}
