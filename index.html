@@ -144,7 +144,7 @@
         <section>
             <h2>Introduction</h2>
             <p>Welcome to the Polyfea Helm Charts repository! This repository hosts Helm charts for deploying Polyfea microfrontend components in your Kubernetes cluster. Polyfea enables you to build and manage microfrontends with ease.</p>
-            <p>More information and documentation can be found in our <a href="https://github.com/polyfea/" target="_blank">GitHub Organization</a>.</p>
+            <br><p>More information and documentation can be found in our <a href="https://github.com/polyfea/" target="_blank">GitHub Organization</a>.</p>
         </section>
         <section>
             <h2>Available Charts</h2>
@@ -171,30 +171,30 @@ helm repo update</code>
             
             <h3>2. Search for Available Charts</h3>
             <div class="command">
-<code><span class="comment"># List all Polyfea charts</span>
-helm search repo polyfea
+<code><span class="comment"># List all Polyfea charts</span> <br>
+helm search repo polyfea<br>
 
-<span class="comment"># Show all available versions</span>
+<span class="comment"># Show all available versions</span><br>
 helm search repo polyfea --versions</code>
             </div>
             
             <h3>3. View Chart Information</h3>
             <div class="command">
-<code><span class="comment"># Show the chart README</span>
-helm show readme polyfea/polyfea-controller
+<code><span class="comment"># Show the chart README</span><br>
+helm show readme polyfea/polyfea-controller<br>
 
-<span class="comment"># View default values</span>
+<span class="comment"># View default values</span><br>
 helm show values polyfea/polyfea-controller</code>
             </div>
             
             <h3>4. Install a Chart</h3>
             <div class="command">
-<code><span class="comment"># Install the Polyfea controller</span>
+<code><span class="comment"># Install the Polyfea controller</span><br>
 helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
-  --create-namespace
+  --create-namespace<br>
 
-<span class="comment"># Or install with custom values</span>
+<span class="comment"># Or install with custom values</span><br>
 helm install polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system \
   --create-namespace \
