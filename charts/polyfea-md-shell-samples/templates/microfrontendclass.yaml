@@ -11,6 +11,8 @@ metadata:
 spec:
   title: {{ .Values.microfrontendClass.title | quote }}
   baseUri: {{ .Values.microfrontendClass.baseUri | quote }}
+  namespacePolicy:
+    from: All
   extraMetaTags:
   - name: viewport
     content: width=device-width, initial-scale=1
