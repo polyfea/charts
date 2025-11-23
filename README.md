@@ -55,6 +55,30 @@ Each chart includes its own `README.md` found inside:
 charts/<chart-name>/README.md
 ```
 
+## Uninstalling
+
+Custom resources (MicroFrontendClass, MicroFrontend, WebComponent) are **not** automatically deleted when uninstalling the chart.
+
+### Clean Uninstall
+
+```bash
+# 1. Delete all custom resources first
+kubectl delete microfrontendclass,microfrontend,webcomponent --all-namespaces --all
+
+# 2. Uninstall the chart
+helm uninstall <release-name> --namespace <namespace>
+```
+
+### If CRs are Stuck in Terminating State
+
+If you uninstalled the controller before deleting CRs, remove finalizers manually:
+
+```bash
+kubectl patch microfrontendclass <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+kubectl patch microfrontend <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+kubectl patch webcomponent <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+```
+
 ## Development
 
 Charts in this repository are packaged and published automatically to the

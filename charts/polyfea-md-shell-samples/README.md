@@ -101,11 +101,31 @@ This chart deploys:
 - **Deployment**: MD Shell application server
 - **Service**: ClusterIP service for the MD Shell
 
-## Uninstallation
+## Uninstalling
+
+Custom resources (MicroFrontendClass, MicroFrontend, WebComponent) created by this chart are **not** automatically deleted when uninstalling.
+
+### Clean Uninstall
 
 ```bash
+# 1. Delete all custom resources first
+kubectl delete microfrontendclass,microfrontend,webcomponent -n polyfea --all
+
+# 2. Uninstall the chart
 helm uninstall polyfea-md-shell-samples --namespace polyfea
 ```
+
+### If CRs are Stuck in Terminating State
+
+If you uninstalled the chart (or the controller dependency) before deleting CRs, remove finalizers manually:
+
+```bash
+kubectl patch microfrontendclass <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+kubectl patch microfrontend <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+kubectl patch webcomponent <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+```
+
+⚠️ **Note**: If you installed the controller as a dependency (`polyfea-controller.enabled=true`), uninstalling this chart will also remove the controller, which may affect other custom resources in the cluster.
 
 ## Notes
 
