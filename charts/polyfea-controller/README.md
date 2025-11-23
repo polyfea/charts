@@ -502,13 +502,31 @@ helm upgrade polyfea-controller polyfea/polyfea-controller \
   --namespace polyfea-system
 ```
 
-## Uninstall
+## Uninstalling
+
+Custom resources (MicroFrontendClass, MicroFrontend, WebComponent) are **not** automatically deleted when uninstalling the chart.
+
+### Clean Uninstall
 
 ```bash
+# 1. Delete all custom resources first
+kubectl delete microfrontendclass,microfrontend,webcomponent --all-namespaces --all
+
+# 2. Uninstall the chart
 helm uninstall polyfea-controller --namespace polyfea-system
 ```
 
-⚠️ **Note**: This will not remove CRDs or any custom resources. See the [CRDs section](#crds) for manual cleanup.
+### If CRs are Stuck in Terminating State
+
+If you uninstalled the controller before deleting CRs, remove finalizers manually:
+
+```bash
+kubectl patch microfrontendclass <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+kubectl patch microfrontend <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+kubectl patch webcomponent <name> -n <namespace> -p '{"metadata":{"finalizers":null}}' --type=merge
+```
+
+⚠️ **Note**: This will not remove CRDs. See the [CRDs section](#crds) for manual cleanup.
 
 ## Troubleshooting
 
