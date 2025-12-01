@@ -2,12 +2,19 @@
 
 This repository contains the official Helm charts for Polyfea components.
 
+## Latest Release: Controller v0.6.0
+
+🎉 **New in v0.6.0** (Controller v0.5.0):
+- **Import Maps Support**: Configure module resolution mappings for your microfrontends following the Import Maps specification
+- **Conflict Detection**: Automatic detection and reporting of import map conflicts between microfrontends
+- **Scoped Resolution**: Different module resolutions based on URL path prefixes
+
 ## Available Charts
 
-| Chart | Description |
-|-------|-------------|
-| **polyfea-controller** | Deploys the Polyfea microfrontend controller and its CRDs. |
-| **polyfea-md-shell-samples** | Sample applications demonstrating the Polyfea Material Design Shell with web components. Includes dependency on polyfea-controller. |
+| Chart | Version | App Version | Description |
+|-------|---------|-------------|-------------|
+| **polyfea-controller** | 0.6.0 | v0.5.0 | Deploys the Polyfea microfrontend controller and its CRDs with Import Maps support |
+| **polyfea-md-shell-samples** | - | - | Sample applications demonstrating the Polyfea Material Design Shell with web components. Includes dependency on polyfea-controller |
 
 ## Adding the Repository
 
