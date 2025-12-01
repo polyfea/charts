@@ -80,6 +80,72 @@ kubectl delete crd microfrontendclasses.polyfea.github.io
 kubectl delete crd webcomponents.polyfea.github.io
 ```
 
+## Import Maps Feature
+
+The **Import Maps** feature (introduced in v0.5.0) allows you to define module resolution mappings for your microfrontends, following the Import Maps specification.
+
+### What are Import Maps?
+
+Import maps let you control how JavaScript module specifiers are resolved. Instead of using full URLs, you can use bare module specifiers like `"react"` or `"@angular/core"` that map to actual module locations.
+
+### How It Works
+
+1. **Per-MicroFrontend Configuration**: Each `MicroFrontend` resource can define its own import map with:
+   - **Imports**: Top-level module specifier mappings
+   - **Scopes**: URL path-specific module resolutions
+
+2. **Automatic Merging**: The controller merges import maps from all microfrontends in a `MicroFrontendClass`
+
+3. **Conflict Resolution**: First-registered wins (based on creation timestamp). Conflicts are reported in the `MicroFrontend` status
+
+4. **Status Reporting**: Check `importMapConflicts` in the status to see any module specifiers that couldn't be registered
+
+### Example MicroFrontend with Import Map
+
+```yaml
+apiVersion: polyfea.github.io/v1alpha1
+kind: MicroFrontend
+metadata:
+  name: my-react-app
+spec:
+  frontendClass: my-frontend-class
+  service:
+    name: react-service
+  modulePath: /dist/app.js
+  importMap:
+    imports:
+      # Bare specifier pointing to a relative path
+      react: ./vendor/react.production.min.js
+      react-dom: ./vendor/react-dom.production.min.js
+      # Bare specifier pointing to an absolute URL
+      lodash: https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
+    scopes:
+      # Different resolution for legacy code
+      /legacy/:
+        react: ./vendor/react.v16.js
+```
+
+### Checking for Conflicts
+
+After deploying a microfrontend with import maps, check its status:
+
+```bash
+kubectl get microfrontend my-react-app -o jsonpath='{.status.importMapConflicts}'
+```
+
+If there are conflicts, you'll see details about:
+- Which specifier has a conflict
+- What path you requested
+- What's actually registered
+- Which microfrontend registered it first
+
+### Best Practices
+
+- **Coordinate Shared Dependencies**: Ensure microfrontends agree on shared dependency versions
+- **Use Timestamps**: The first microfrontend created wins conflicts, so deploy core dependencies first
+- **Monitor Status**: Always check `importMapConflicts` after deployment
+- **Relative Paths**: Paths in import maps are relative to the microfrontend's resolved service URL
+
 ## Accessing the Controller
 
 The controller's web server can be accessed in several ways:
