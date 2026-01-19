@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: polyfea-md-shell
-        image: "{{ .Values.mdShell.image.repository }}:{{ .Values.mdShell.image.tag }}"
+        image: "{{ .Values.mdShell.image.repository }}:{{ .Values.mdShell.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.mdShell.image.pullPolicy }}
         ports:
           - name: http

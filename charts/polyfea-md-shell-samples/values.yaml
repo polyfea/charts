@@ -19,7 +19,7 @@ mdShell:
   replicaCount: 1
   image:
     repository: ghcr.io/polyfea/md-shell
-    tag: latest
+    tag: ""
     pullPolicy: IfNotPresent
   
   service:
