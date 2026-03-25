@@ -91,14 +91,12 @@ Import maps let you control how JavaScript module specifiers are resolved. Inste
 ### How It Works
 
 1. **Per-MicroFrontend Configuration**: Each `MicroFrontend` resource can define its own import map with:
-   - **Imports**: Top-level module specifier mappings
-   - **Scopes**: URL path-specific module resolutions
+   - **Optional**: Global module specifier mappings (duplicates silently skipped — first-registered-wins)
+   - **Scoped**: Per-MF scoped mappings automatically placed under `./polyfea/proxy/{namespace}/{name}/`
 
 2. **Automatic Merging**: The controller merges import maps from all microfrontends in a `MicroFrontendClass`
 
-3. **Conflict Resolution**: First-registered wins (based on creation timestamp). Conflicts are reported in the `MicroFrontend` status
-
-4. **Status Reporting**: Check `importMapConflicts` in the status to see any module specifiers that couldn't be registered
+3. **Isolation**: Scoped entries are isolated per MF — the scope key is derived automatically from the MF's proxy path. No conflict detection needed.
 
 ### Example MicroFrontend with Import Map
 
@@ -113,37 +111,21 @@ spec:
     name: react-service
   modulePath: /dist/app.js
   importMap:
-    imports:
-      # Bare specifier pointing to a relative path
+    optional:
+      # Bare specifier pointing to a relative path (first-registered-wins globally)
       react: ./vendor/react.production.min.js
       react-dom: ./vendor/react-dom.production.min.js
       # Bare specifier pointing to an absolute URL
       lodash: https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
-    scopes:
-      # Different resolution for legacy code
-      /legacy/:
-        react: ./vendor/react.v16.js
+    scoped:
+      # Scoped to this MF's proxy path automatically
+      my-local-lib: ./vendor/my-local-lib.js
 ```
-
-### Checking for Conflicts
-
-After deploying a microfrontend with import maps, check its status:
-
-```bash
-kubectl get microfrontend my-react-app -o jsonpath='{.status.importMapConflicts}'
-```
-
-If there are conflicts, you'll see details about:
-- Which specifier has a conflict
-- What path you requested
-- What's actually registered
-- Which microfrontend registered it first
 
 ### Best Practices
 
-- **Coordinate Shared Dependencies**: Ensure microfrontends agree on shared dependency versions
-- **Use Timestamps**: The first microfrontend created wins conflicts, so deploy core dependencies first
-- **Monitor Status**: Always check `importMapConflicts` after deployment
+- **Coordinate Shared Dependencies**: Ensure microfrontends agree on shared dependency versions for `optional` entries
+- **Use `scoped` for MF-private modules**: Scoped entries are isolated per MF and never conflict
 - **Relative Paths**: Paths in import maps are relative to the microfrontend's resolved service URL
 
 ## Accessing the Controller
