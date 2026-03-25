@@ -6,8 +6,7 @@ This repository contains the official Helm charts for Polyfea components.
 
 🎉 **New in v0.6.0** (Controller v0.5.0):
 - **Import Maps Support**: Configure module resolution mappings for your microfrontends following the Import Maps specification
-- **Conflict Detection**: Automatic detection and reporting of import map conflicts between microfrontends
-- **Scoped Resolution**: Different module resolutions based on URL path prefixes
+- **Scoped Resolution**: Per-MF scoped module mappings automatically isolated under the MF's proxy path
 
 ## Available Charts
 
