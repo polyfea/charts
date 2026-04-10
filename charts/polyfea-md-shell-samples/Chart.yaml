@@ -7,6 +7,6 @@ appVersion: "2.0.4"
 
 dependencies:
   - name: polyfea-controller
-    version: "0.7.1"
+    version: "0.8.0"
     repository: "https://polyfea.github.io/charts"
     condition: polyfea-controller.enabled
