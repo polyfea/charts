@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   polyfea-controller:
   - apiVersion: v2
+    appVersion: v0.8.1
+    created: "2026-04-12T18:52:15.827997041Z"
+    description: A Helm chart for Polyfea Controller
+    digest: 37c9f8b62ac4cc1c5690766fe3941ee6b66d60263051de2c7d3ae6d29dcbbccf
+    name: polyfea-controller
+    type: application
+    urls:
+    - https://github.com/polyfea/charts/releases/download/polyfea-controller-0.8.1/polyfea-controller-0.8.1.tgz
+    version: 0.8.1
+  - apiVersion: v2
     appVersion: v8.0.0
     created: "2026-04-10T12:21:21.380366707Z"
     description: A Helm chart for Polyfea Controller
@@ -142,6 +152,21 @@ entries:
     - https://github.com/polyfea/charts/releases/download/polyfea-controller-0.1.0/polyfea-controller-0.1.0.tgz
     version: 0.1.0
   polyfea-md-shell-samples:
+  - apiVersion: v2
+    appVersion: 2.0.4
+    created: "2026-04-12T18:52:15.956445935Z"
+    dependencies:
+    - condition: polyfea-controller.enabled
+      name: polyfea-controller
+      repository: https://polyfea.github.io/charts
+      version: 0.8.1
+    description: Sample applications and configurations for Polyfea MD Shell
+    digest: 6aa5ca5680806a9a527f75ff309658b86713d570710e36a9bd3bad6761892110
+    name: polyfea-md-shell-samples
+    type: application
+    urls:
+    - https://github.com/polyfea/charts/releases/download/polyfea-md-shell-samples-0.4.6/polyfea-md-shell-samples-0.4.6.tgz
+    version: 0.4.6
   - apiVersion: v2
     appVersion: 2.0.4
     created: "2026-04-10T12:21:21.558945163Z"
@@ -352,4 +377,4 @@ entries:
     urls:
     - https://github.com/polyfea/charts/releases/download/polyfea-md-shell-samples-0.1.0/polyfea-md-shell-samples-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-10T12:21:21.559167638Z"
+generated: "2026-04-12T18:52:15.956656479Z"
