@@ -25,11 +25,17 @@ spec:
         - src: {{ .Values.microfrontendClass.iconUrl | quote }}
           sizes: "128x128"
           type: "image/png"
-    cacheOptions:
+    serviceWorker:
+      scope: "/fea"
       preCache:
         - url: polyfea/boot.mjs
       cacheRoutes:
         - pattern: .*.jpg
+        - pattern: .*.png
+        - pattern: .*.svg
+        - pattern: .*.css
+        - pattern: .*.woff2
+        - pattern: .*.woff
   cspHeader: >-
     default-src 'self'; font-src 'self'; script-src 'strict-dynamic'
     'nonce-{NONCE_VALUE}'; worker-src 'self'; manifest-src 'self'; style-src

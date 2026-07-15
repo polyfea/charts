@@ -156,11 +156,8 @@ spec:
                   The property has effect only if the microfrontend is served through the controller's proxy (Proxy: true), otherwise it is ignored.
                 properties:
                   cacheRoutes:
-                    description: |-
-                      CacheRoutes specifies the caching strategies for different URL patterns.
-                      Only routes that are served by the nicrofrontend (i.e. prefixed with the microfrontend's ResolvedUrl)
-                      will be matched. Routes outside of the microfrontend's scope needs to be configured
-                      in the MicroFrontendClass or handled by microfrontend's interceptor to be effective.
+                    description: CacheRoutes specifies the caching strategies for
+                      different URL patterns
                     items:
                       description: |-
                         CacheRoute defines the caching strategy for a specific URL pattern within a Progressive Web Application (PWA).
@@ -178,9 +175,7 @@ spec:
                           type: boolean
                         cacheName:
                           description: Name of the cache where the response will be
-                            stored if strategy uses the cache. Also name of BrodcastChannel
-                            used for cache update notifications in case of stal-with.
-                            It
+                            stored if strategy uses the cache.
                           type: string
                         destination:
                           description: See https://developer.mozilla.org/en-US/docs/Web/API/Request/destination
@@ -226,8 +221,13 @@ spec:
                           type: array
                         strategy:
                           default: cache-first
-                          description: Strategy defines the caching strategy to be
-                            used for this URL pattern. It defaults to "cache-first".
+                          description: |-
+                            Strategy defines the caching strategy to be used for this URL pattern. It defaults to "cache-first".
+
+                            If the strategy is "stale-while-revalidate", the service worker will serve the cached response immediately
+                            (if available) and then fetch an updated response in the background to update the cache for future requests.
+                            background-update-plugin is used in this case to handle the background update process.
+                            @link https://developer.chrome.com/docs/workbox/modules/workbox-broadcast-update
                           enum:
                           - cache-first
                           - network-first
@@ -326,21 +326,52 @@ spec:
                   properties:
                     attributes:
                       items:
-                        description: Attribute defines a key-value pair that allows
-                          you to assign specific attributes to the element. The name
-                          field is used as the attribute name, while the value field
-                          can be any valid JSON type.
+                        description: |-
+                          Attribute defines a key-value pair that allows you to assign specific attributes to the element.
+                          Exactly one of value or microfrontendPath must be set: value assigns a literal (any valid JSON
+                          type), while microfrontendPath resolves to a URL served by a MicroFrontend's proxy.
                         properties:
+                          microfrontendPath:
+                            description: |-
+                              A reference to a path served by a MicroFrontend, resolved to a proxied URL at serve
+                              time. Mutually exclusive with value.
+                            properties:
+                              microfrontend:
+                                description: |-
+                                  MicroFrontend to resolve the path against. Defaults to the MicroFrontend referenced
+                                  by the parent resource, in that resource's namespace, when omitted.
+                                properties:
+                                  name:
+                                    description: Name of the referenced resource.
+                                    maxLength: 253
+                                    type: string
+                                  namespace:
+                                    description: |-
+                                      Namespace of the referenced resource.
+                                      Defaults to the namespace of the referencing resource if not specified.
+                                    maxLength: 63
+                                    type: string
+                                required:
+                                - name
+                                type: object
+                              path:
+                                description: Path relative to the MicroFrontend's
+                                  service root.
+                                maxLength: 2048
+                                type: string
+                            required:
+                            - path
+                            type: object
                           name:
                             description: The name of the attribute.
                             maxLength: 256
                             type: string
                           value:
-                            description: The value of the attribute.
+                            description: The literal value of the attribute. Mutually
+                              exclusive with microfrontendPath.
                             x-kubernetes-preserve-unknown-fields: true
                         required:
                         - name
-                        - value
                         type: object
                       maxItems: 64
                       type: array
@@ -445,12 +476,8 @@ spec:
                       by the class's namespace policy
                     type: boolean
                   name:
-                    description: Name of the MicroFrontendClass
+                    description: Name of the cluster-scoped MicroFrontendClass
                     maxLength: 253
-                    type: string
-                  namespace:
-                    description: Namespace of the MicroFrontendClass
-                    maxLength: 63
                     type: string
                 required:
                 - accepted
